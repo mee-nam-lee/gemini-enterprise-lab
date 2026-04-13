@@ -1,0 +1,9 @@
+**/.env
+**/.dockerignore
+**/__pycache__
+**/*.sh
+
+**/tf*
+**/*.zip
+**/*.html
+**/*.md
