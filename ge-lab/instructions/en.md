@@ -763,12 +763,12 @@ Gemini Enterprise에서는 Custom MCP를 Datasource로 연결하여 사용할 �
 오늘 구내 식당 메뉴가 뭐야?
 ```
 
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp3.png" width="800">
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp3.png" width="700">
 
 ```
 다음주 구내 식당 메뉴가 어떻게 돼?
 ```
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp4.png" width="800">
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp4.png" width="700">
 
 ## Agent Designer에서 사용
 
@@ -886,7 +886,7 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 ```  
   * 커넥터 : Cafeteria MCP를 추가합니다.
 
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp6.png" width="800">
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp6.png" width="500">
 
   * 시작 프롬프트 : 
      오늘 구내 식당 메뉴 알려줘
