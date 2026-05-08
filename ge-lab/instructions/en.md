@@ -792,7 +792,7 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 
 붙여넣기 힐때 복사한 택스트가 다음과 같이 **```** 사이에 들어가게 복사하세요
 
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp9.png" width="300">
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp10.png" width="300">
 
 ```
 # Role & Goal
@@ -893,6 +893,9 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 우측 상단의 “생성”을 클릭합니다. 완료되었으면 실행해 봅니다.
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp8.png" width="800">
+
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp11.png" width="200">
 
 # Nano Banana 
 
