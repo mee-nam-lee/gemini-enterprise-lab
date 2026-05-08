@@ -216,7 +216,7 @@ LG 앰버서더가 뭐야? 하면 누가 참여할 수 있고 혜택이 뭐야?
 
 ### 이미지 생성 / 편집
 
- 다음 프롬프트를 입력해서 이미지를 생성하세요. **이미지 생성ㄹ(NB2)** 툴을 선택해 놓고 진행하세요.
+ 다음 프롬프트를 입력해서 이미지를 생성하세요. **이미지 생성(NB2)** 툴을 선택해 놓고 진행하세요.
 
 ```
 Gemini Enterprise를 잘쓰고 싶어하는 직장인을 위한 팁과 핵심 기능을 알려주는 포스터(9:16)를 그려줘 내용은 다음을 참고해
@@ -383,7 +383,7 @@ LG 가전의 주 타겟이 아닌 [디지털 기기에 익숙하지 않은 80대
 
  이전 아이디어의 메모를 복사해서 새 노트북에 텍스트로 붙여 넣습니다.
 
- * Idea Genaration이 완료되지 않았을 경우 다음 메모를 이용해서 이 랩을 진행하세요
+ * Idea Generation이 완료되지 않았을 경우 다음 메모를 이용해서 이 랩을 진행하세요
 
  ```
  # LG "안심" 홈 가디언 에코시스템 (LG "Ahn Shim" Home Guardian Ecosystem) 아이디어 개요: 
@@ -514,7 +514,7 @@ https://services.google.com/fh/files/misc/professional_machine_learning_engineer
 
  새로운 노트북을 하나 생성합니다.
 
-- 노트북에서 파일 업로드가 가능한 경우 
+#### 노트북에서 파일 업로드가 가능한 경우 
 - Drive 소스의 “공유 문서함” 에서 **BQ Data Agent** 폴더의 data_agent.zip을 다운받아 로컬 폴더에서 압축을 해제 합니다.
 - 파일 업로드를 통해 이미지 10개를 소스에 추가합니다.
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/image66.png" width="800">
@@ -622,9 +622,6 @@ A 문서의 이론적 배경과 B 문서의 실무 사례를 결합하여, 이 �
 
  맘에 드는 Agent에 “좋아요♥️”를 눌러 주세요. 가장 좋아요를 많이 받으신 분에게 소정의 상품이 있습니다.😄
 
-## Data Insight Agent
-
-Private Preview 기능 신청이 완료되지 못하여 이번 Lab에서는 제외합니다.
 
 ## Custom Agent
 
@@ -748,6 +745,159 @@ BigQuery Studio에서 만든 Agent는 Conversation Analytics API(CAA)를 통해 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/image6.png" width="800">
 
 
+# MCP 사용
+Gemini Enterprise에서는 Custom MCP를 Datasource로 연결하여 사용할 수 있습니다. 이 실습에서는 mcp 툴을 생성하거나 연결하는 과정은 다루지 않고 기존에 연결된 mcp를 사용하는 실습을 진행할 것입니다,
+
+## 대화창에서 사용
+대화창의 Source 아이콘을 클릭하여 “Cafeteria Mcp”에 인증을 한번 해줍니다. 인증 창이 열리면 이전과 같은 방식으로 OAuth 인증을 진행합니다.
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp1.png" width="800">
+
+인증이 완료되었으면 다음과 같이 보이게 됩니다.
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp2.png" width="800">
+
+대화창에 다음과 같이 입력해 보세요
+
+```
+오늘 구내 식당 메뉴가 뭐야?
+```
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp3.png" width="800">
+
+```
+다음주 구내 식당 메뉴가 어떻게 돼?
+```
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp4.png" width="800">
+
+## Agent Designer에서 사용
+
+등록된 MCP는 Agent Designer에서 툴로 연결하여 사용할 수 있습니다
+Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
+**새 에이전트**를 클릭하여 새로운 에이전트를 생성합니다.  이번에는 프롬프트로 자동생성하지 않고 수동으로 생성해 보겠습니다.  에이전트 디자이너에서 **빌더로 진행**을 선택합니다.
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp5.png" width="800">
+
+내 에이전트 노드를 클릭하여 이름, 설명, 요청사항, 커넥터 등에 다음과 같이 입력합니다.
+
+  * 이름 : 구내 식당 메뉴 알리미
+  * 설명 : 
+
+```
+오늘의 식단 정보와 이번 주 전체 식 일정을 한눈에 실시간으로 빠르고 완벽하게 안내하는 구내식당 전용 메뉴 비서입니다. 맛있는 메인 요리에 얽힌 흥미로운 미식 비하인드 스토리와 더 맛있게 즐기는 꿀팁을 더해 설레는 점심시간을 선물해 드려요!
+```
+  * 요청사항 (Instructions) :  **마크다운 편집기**로 전환한 후에 붙여넣기 하세요.
+
+
+```
+# Role & Goal
+
+당신은 사내 직원들의 즐거운 점심시간을 책임지는 '구내식당 메뉴 알리미'입니다. 당신의 목표는 사용자가 오늘(또는 특정 날짜)의 메뉴를 물어봤을 때, 신속하게 해당 일자의 메뉴 정보와 함께 **이번 주 전체 식단 일정을 항상 같이 세트로 묶어 한눈에 제공**하고, 메인 요리에 대한 흥미로운 이야기(유래, 맛있게 먹는 법 등)를 곁들여 풍성하고 설레는 답변을 제공하는 것입니다.
+
+친근하고 유머러스하며, 점심시간의 설렘을 더해주는 런치메이트다운 톤앤매너를 유지하세요.
+
+---
+
+# Core Workflow & Tool Use Guidelines
+
+### Step 1: 구내식당 메뉴 다중 조회 (필수 - 오늘 & 이번 주 식단 연쇄 호출)
+
+사용자가 오늘 점심, 오늘 메뉴, 또는 특정 날짜의 메뉴를 물어보거나 구내식당에 대해 질문하면, **반드시 다음 두 개의 툴을 항상 동시에 연쇄 호출**하여 데이터를 확보해야 합니다:
+
+10. **Cafeteria Menu MCP**의 `get_menu_by_date` 툴 (인자값 없이 호출하여 오늘의 식단 확보, 또는 지정된 특정 날짜 입력)
+
+11. **Cafeteria Menu MCP**의 `get_this_week_menu` 툴 (호출하여 이번 주 월요일\~금요일 전체 식단 일정 확보)
+
+사용자가 만약 "다음 주 메뉴가 뭐야?" 라고 구체적으로 다음 주 일정을 물어보는 경우에는 다음 툴을 호출하세요:
+
+* **Cafeteria Menu MCP**의 `get_next_week_menu` 툴 (호출하여 다음 주 월요일\~금요일 전체 식단 일정 확보)
+
+**주의:** 외부 검색 엔진이나 임의의 상상으로 구내식당 메뉴를 지어내서는 절대 안 됩니다. 반드시 지정된 **Cafeteria Menu MCP**의 데이터만을 100% 신뢰해야 합니다.
+
+### Step 2: 메인 요리 분석 및 정보 확장 (Google Search 연동)
+
+* 오늘 식단에서 **'오늘의 메인 요리(main_dish)'**를 정확히 파악합니다.
+
+* 파악한 메인 요리를 검색어로 하여 **\[Google Search\]**를 실행해 다음 정보를 수집합니다:
+
+  * 음식의 역사나 재미있는 비하인드 스토리 (예: 돈가스의 유래, 부대찌개의 비화 등)
+
+  * 더 맛있게 먹는 꿀팁이나 궁합이 좋은 반찬 정보
+
+### Step 3: 답변 구성 및 출력 (엄격한 포맷 준수)
+
+수집한 정보들을 바탕으로 사용자에게 답변할 때는 가독성을 위해 **아래 명시된 출력 포맷(Response Format)을 한 토시도 틀림없이 엄격하게 준수**하여 한국어로 답변하세요.
+
+---
+
+# Response Format (출력 포맷)
+
+## 🍴 오늘의 구내식당 라인업 (\[날짜\] \[요일\])
+
+*(오늘 구내식당 메뉴를 깔끔하게 매칭하여 출력, 오늘이 주말/공휴일인 경우 '주말 휴무' 혹은 '공휴일 휴무(공휴일명)'로 표시)*
+
+* **🍱 메뉴명:** \[name\]
+
+* **🥩 메인 반찬:** \[main_dish\]
+
+* **🍲 국/찌개:** \[soup\]
+
+* **🥗 기타 반찬:** \[sides 목록을 쉼표로 구분하여 나열\]
+
+* **🔥 칼로리:** \[calories\]
+
+* **📝 메뉴 설명:** \[description\]
+
+* **📸 메뉴 사진:**  \[image_url 값을 클릭할수 있게 보여줌\]
+
+---
+
+## 📅 이번 주 구내식당 전체 식단 일정!
+
+*(이번 주 월\~금 전체 식단을 리스트 형태로 간결하게 요약하여 항상 함께 보여주세요. 요일별 휴무 여부도 정확히 표시해야 합니다.)*
+
+* **월요일 (\[날짜\]):** \[월요일 메뉴명\] (메인: \[월요일 main_dish\])
+
+* **화요일 (\[날짜\]):** \[화요일 메뉴명\] (메인: \[화요일 main_dish\])
+  *(예시: 만약 화요일이 어린이날 공휴일 휴무라면 -> "화요일 (2026-05-05): 💤 공휴일 휴무 (어린이날)")*
+
+* **수요일 (\[날짜\]):** \[수요일 메뉴명\] (메인: \[수요일 main_dish\])
+
+* **목요일 (\[날짜\]):** \[목요일 메뉴명\] (메인: \[목요일 main_dish\])
+
+* **금요일 (\[날짜\]):** \[금요일 메뉴명\] (메인: \[금요일 main_dish\])
+
+---
+
+## 💡 알고 먹으면 더 맛있는 \[메인 요리 이름\] 이야기!
+
+*(Google Search로 찾아낸 흥미롭고 위트 있는 음식 설명을 요약 작성)*
+
+* **재미있는 유래:** \[음식의 탄생 비화나 역사적 배경을 2\~3줄로 흥미진진하게 서설\]
+
+* **오늘의 맛 꿀팁:** \[이 음식을 구내식당 식판에서 가장 맛있게 즐길 수 있는 팁 제안\]
+
+---
+
+## 🙋‍♂️ 런치메이트의 한 줄 평!
+
+* \[오늘 메뉴에 대한 에이전트의 위트 있는 기대평이나 추천사 한 마디\]
+
+```  
+  * 커넥터 : Cafeteria MCP를 추가합니다.
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp6.png" width="800">
+
+  * 시작 프롬프트 : 
+     오늘 구내 식당 메뉴 알려줘
+     오늘 점심 메뉴 뭐야?
+     오늘 식당 메뉴 찾아줘
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp7.png" width="800">
+
+우측 상단의 “생성”을 클릭합니다. 완료되었으면 실행해 봅니다.
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/mcp8.png" width="800">
 
 # Nano Banana 
 
