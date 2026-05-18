@@ -11,10 +11,6 @@ Gemini Enterprise 소개 동영상을 확인하지 못했다면, 다음 Youtube 
 
 [Gemini Enterprise 기능 소개 유튜브 동영상 보기](https://www.youtube.com/watch?v=Fr3q7EFnEh0)
 
-## 실습 파일 다운로드
-실습에 필요한 파일은 아래 링크에서 다운로드하여 사용합니다.
-* [실습 파일 다운로드 (ge_lab_download.zip)](https://storage.cloud.google.com/ge-lab-download/ge_lab_download.zip)
-
 ## Setup
 
 Google Drive 사용을 위해서 화면 좌측 하단의 설정으로 갑니다.
@@ -96,7 +92,7 @@ OAuth 인증을 승인하고 사용설정을 하면 다음과 같이 보여야 �
 
 ### Survey 분석
 
- **Upload files**를 선택하여 다운로드한 실습 파일 중 (Excel_example_survey.xlsx)를 추가 합니다. 
+ **Add from Drive**를 선택하여 **공유 문서함** 탭을 클릭합니다. 공유된 폴더 **GE_실습**에서 Sample Excel (Excel_example_survey.xlsx)를 추가 합니다. 
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/image73.png" width="500">
 
