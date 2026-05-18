@@ -4,7 +4,7 @@
 **/*.sh
 
 **/tf*
-**/*.zip
+**/tf.zip
 **/*.html
 agent-engine-lab/instructions/en.md
 appscript
