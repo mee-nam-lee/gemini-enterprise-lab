@@ -11,6 +11,10 @@ Gemini Enterprise 소개 동영상을 확인하지 못했다면, 다음 Youtube 
 
 [Gemini Enterprise 기능 소개 유튜브 동영상 보기](https://www.youtube.com/watch?v=Fr3q7EFnEh0)
 
+## 실습 파일 다운로드
+실습에 필요한 파일은 아래 링크에서 다운로드하여 사용합니다.
+* [실습 파일 다운로드 (ge_lab_download.zip)](https://storage.cloud.google.com/ge-lab-download/ge_lab_download.zip)
+
 ## Setup
 
 Google Drive 사용을 위해서 화면 좌측 하단의 설정으로 갑니다.
