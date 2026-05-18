@@ -5,7 +5,9 @@ In this lab, you will learn about Gemini Enterprise and other AI examples.
 # Gemini Enterprise Hands on Workshop
 
 Trainer가 제공해준 실습용 Gemini Enterprise App URL로 접속합니다.
- 
+
+[![Gemini Enterprise 기능 소개](https://img.youtube.com/vi/Fr3q7EFnEh0/hqdefault.jpg)](https://www.youtube.com/watch?v=Fr3q7EFnEh0)
+
 
 ## Setup
 
