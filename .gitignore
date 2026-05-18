@@ -9,3 +9,4 @@
 agent-engine-lab/instructions/en.md
 appscript
 .gitignore
+**/.DS_Store
