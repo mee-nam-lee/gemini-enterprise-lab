@@ -656,7 +656,7 @@ LG전자 주가 관련 뉴스로 포함해줘
 
 
 
-## BigQuery Data Agent
+## BigQuery Conversational Analytics Agent
 BigQuery에서 Native로 지원하는 NL2SQL인 Agent를 실습해 보겠습니다. BigQuery Studio에서 Agent를 쉽게 만들고 바로 테스트가 가능합니다.
 BigQuery Studio에서 만든 Agent는 Conversation Analytics API(CAA)를 통해 호출하여 사용할 수 있습니다.
 
@@ -702,6 +702,13 @@ BigQuery Studio에서 만든 Agent는 Conversation Analytics API(CAA)를 통해 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/image79.png" width="800">
 
 이외 다른 다양한 질문들을 해보세요.
+
+### Gemini Enterprise에서 사용
+Agent 메뉴에서 **The Look Ecommerce (GE Workshop)** Agent를 선택하여, 위의 예시의 질문들을 수행해 봅니다. 
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/ca01.png" width="800">
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/ca02.png" width="800">
+
 
 ### BigQuery Studio에서 직접 사용
 
