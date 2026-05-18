@@ -96,7 +96,7 @@ OAuth 인증을 승인하고 사용설정을 하면 다음과 같이 보여야 �
 
 ### Survey 분석
 
- **Add from Drive**를 선택하여 **공유 문서함** 탭을 클릭합니다. 공유된 폴더 **GE_실습**에서 Sample Excel (Excel_example_survey.xlsx)를 추가 합니다. 
+ **Upload files**를 선택하여 다운로드한 실습 파일 중 (Excel_example_survey.xlsx)를 추가 합니다. 
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/image73.png" width="500">
 
@@ -710,13 +710,6 @@ BigQuery Studio에서 만든 Agent는 Conversation Analytics API(CAA)를 통해 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/image79.png" width="800">
 
 이외 다른 다양한 질문들을 해보세요.
-
-### Gemini Enterprise에서 사용
-Agent 메뉴에서 **The Look Ecommerce (GE Workshop)** Agent를 선택하여, 위의 예시의 질문들을 수행해 봅니다. 
-
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/ca01.png" width="800">
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/ca02.png" width="800">
-
 
 ### BigQuery Studio에서 직접 사용
 
