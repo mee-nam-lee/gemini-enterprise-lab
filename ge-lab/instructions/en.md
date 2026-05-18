@@ -1033,7 +1033,7 @@ Chrome 브라우저의 주소창에 **gemini**를 입력하고 **Tab** 또는 **
 
 
 ```
-리눅스에서 특정 포트(예: 8080) 사용 중인 프로세스 찾아서 죽이는 명령어 딱 알려줘
+리눅스에서 특정 포트(예: 8080) 사용 중인 프로세스 찾아서 종료하는 명령어 알려줘
 ```
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab/instructions/images/chrome03.png" width="800">
