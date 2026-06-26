@@ -532,7 +532,8 @@ LG '루미케어' - 공감하는 세탁 도우미를  인포그래픽으로 생
 
 생성된 슬라이드를 확인합니다. 광고 Scene에 활용할 이미지들이 생성되었습니다. 이 이미지들을 이용해서 Veo3로 동영상을 만들면 광고 영상을 쉽게 만들수 있습니다.
 
-### $\color{#3498DB}{\text{<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image86.png" width="624" alt="">}}$
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image86.png" width="624" alt="">
+
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image76.png" width="624" alt="">
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image47.png" width="624" alt="">

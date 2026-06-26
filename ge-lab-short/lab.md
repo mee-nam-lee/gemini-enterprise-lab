@@ -949,11 +949,11 @@ Agent 메뉴에 가면 이 Agent가 Schedule이 걸려 있음을 확인할 수 �
 
 스케줄이 돌아서 Agent가 수행된 내용은 Chat History에서 확인할 수 있습니다.
 
-### 멀티 에이전트 만들기
+## 멀티 에이전트 만들기
 
 “신규 에이전트”를 클릭해서 새로운 에이전트를 만듭니다. “빌더로 진행”을 클릭해서 수동으로 에이전트를 생성합니다.
 
-#### GOOG전자 채용 총괄 에이전트 (Root Agent)
+### GOOG전자 채용 총괄 에이전트 (Root Agent)
 
 “내 에이전트”를 클릭해서 다음 정보를 입력합니다.
 
@@ -1001,7 +1001,8 @@ Agent 메뉴에 가면 이 Agent가 Schedule이 걸려 있음을 확인할 수 �
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image57.png" width="624" alt="">
 
-#### 서류 심층 평가자 (Sub-Agent 1)
+### 서류 심층 평가자 (Sub-Agent 1)
+
 “하위 에이전트 추가”를 클릭해서 Sub Agent를 생성합니다.
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image36.png" width="267" alt="">
@@ -1029,7 +1030,8 @@ Agent 메뉴에 가면 이 Agent가 Schedule이 걸려 있음을 확인할 수 �
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image108.png" width="624" alt="">
 
-#### 백그라운드 팩트체커 (Sub-Agent 2)
+### 백그라운드 팩트체커 (Sub-Agent 2)
+
 “하위 에이전트 추가”를 클릭해서 Sub Agent를 생성합니다.
 
 - **Name:** 백그라운드 팩트체커
@@ -1055,7 +1057,8 @@ Agent 메뉴에 가면 이 Agent가 Schedule이 걸려 있음을 확인할 수 �
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image82.png" width="624" alt="">
 
-#### 면접 질문 기획자 (Sub-Agent 3)
+### 면접 질문 기획자 (Sub-Agent 3)
+
 “하위 에이전트 추가”를 클릭해서 Sub Agent를 생성합니다.
 
 - **Name**: 면접 질문 기획자
