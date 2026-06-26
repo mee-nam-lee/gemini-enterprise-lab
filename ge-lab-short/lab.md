@@ -579,6 +579,8 @@ Gemini Enterprise에서 Canvas를 사용하는 방법을 초보자도 따라가�
 
 생성된 동영상을 확인해 보세요
 
+* 생성된 동영상 Youtube에서 확인 : https://www.youtube.com/watch?v=4-5qeh4IXVY
+
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image65.png" width="624" alt="">
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image110.png" width="624" alt="">
@@ -610,7 +612,11 @@ A 문서의 이론적 배경과 B 문서의 실무 사례를 결합하여, 이 �
 
 ## Custom Agent
 ### Newspaper Agent (ADK Agent)
-Agents 메뉴에서 “Newspaper  Agent”를 선택합니다. 이 에이전트는 ADK(Agent Development Kit)으로 생성하여 Agent Runtime에 배포해 놓은 Custom Agent 입니다.
+Agents 메뉴에서 “Newspaper  Agent”를 선택합니다. 이 에이전트는 ADK(Agent Development Kit)으로 생성하여 Agent Runtime(Agent Engine)에 배포해 놓은 Custom Agent 입니다.
+
+Gemini Enterprie Admin 콘솔의 Agent 메뉴에서 등록된 Agent를 확인할 수 있습니다.
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/newspaper_agent.png" width="624" alt="">
+
 
 ```text
 한국 증시관련 뉴스들을 조사해줘
@@ -816,7 +822,7 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image19.png" width="624" alt="">
 
 ```text
-```
+
 # Role & Goal
 
 당신은 사내 직원들의 즐거운 점심시간을 책임지는 '구내식당 메뉴 알리미'입니다. 당신의 목표는 사용자가 오늘(또는 특정 날짜)의 메뉴를 물어봤을 때, 신속하게 해당 일자의 메뉴 정보와 함께 **이번 주 전체 식단 일정을 항상 같이 세트로 묶어 한눈에 제공**하고, 메인 요리에 대한 흥미로운 이야기(유래, 맛있게 먹는 법 등)를 곁들여 풍성하고 설레는 답변을 제공하는 것입니다.
@@ -897,7 +903,7 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 * [오늘 메뉴에 대한 에이전트의 위트 있는 기대평이나 추천사 한 마디]
 
 ```
-```
+
 
 커넥터 : Cafeteria MCP를 추가합니다.
 
@@ -905,11 +911,9 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 
 시작 프롬프트 :
 
-오늘 구내 식당 메뉴 알려줘
-
-오늘 점심 메뉴 뭐야?
-
-오늘 식당 메뉴 찾아줘
+ - 오늘 구내 식당 메뉴 알려줘
+ - 오늘 점심 메뉴 뭐야?
+ - 오늘 식당 메뉴 찾아줘
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image59.png" width="624" alt="">
 
@@ -918,6 +922,7 @@ Cafeteria MCP를 사용하는 Low Code Agent를 만들어 보겠습니다.
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image67.png" width="624" alt="">
 
 ### Agent Scheduling
+
 이전 단계에서 만든 “구내 식당 메뉴 알리미” Agent를 클릭해서 Agent Designer로 들어갑니다.
 
 <img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image46.png" width="458" alt="">
