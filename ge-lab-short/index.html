@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Enterprise Hands-on Workshop Portal</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f5f7;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Glows */
+        .bg-glow-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .bg-glow-1, .bg-glow-2, .bg-glow-3 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.45;
+        }
+
+        .bg-glow-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0) 70%);
+            top: -10%;
+            left: 10%;
+            animation: float1 25s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #a855f7 0%, rgba(168, 85, 247, 0) 70%);
+            bottom: -15%;
+            right: 10%;
+            animation: float2 30s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #06b6d4 0%, rgba(6, 182, 212, 0) 70%);
+            top: 40%;
+            left: 45%;
+            animation: float3 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes float1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(120px, 80px) scale(1.15); }
+        }
+        @keyframes float2 {
+            0% { transform: translate(0, 0) scale(1.1); }
+            100% { transform: translate(-140px, -90px) scale(0.9); }
+        }
+        @keyframes float3 {
+            0% { transform: translate(0, 0) scale(0.9); }
+            100% { transform: translate(-70px, 100px) scale(1.2); }
+        }
+
+        /* Slide Portal Card */
+        .slide-container {
+            width: 90vw;
+            max-width: 1000px;
+            aspect-ratio: 16 / 9;
+            background: rgba(13, 20, 38, 0.45);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 4.5rem 5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(99, 102, 241, 0.1);
+            z-index: 10;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle Inner Slide Border Glow */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 24px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 50%, rgba(99, 102, 241, 0.15) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .slide-header {
+            margin-bottom: 2rem;
+        }
+
+        .slide-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .gemini-badge {
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .slide-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff 30%, #cbd5e1 70%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.125rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Grid Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.75rem;
+            width: 100%;
+            margin-top: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Card Button style */
+        .option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            padding: 2rem 1.75rem;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            height: 100%;
+            min-height: 200px;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 18px;
+            background: radial-gradient(800px circle at var(--x, 0px) var(--y, 0px), rgba(255, 255, 255, 0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .option-card:hover::before {
+            opacity: 1;
+        }
+
+        .option-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4),
+                        0 0 20px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Icon styling */
+        .icon-container {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+        }
+
+        .option-card:hover .icon-container {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            color: #a855f7;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Card Content */
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .option-card:hover .card-title {
+            color: #6366f1;
+        }
+
+        .card-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* Disabled state styling */
+        .option-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.01);
+            border-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-coming {
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 0.15rem 0.5rem;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Footer */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .footer-logo {
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        
+        .footer-logo-highlight {
+            background: linear-gradient(to right, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .slide-container {
+                aspect-ratio: auto;
+                padding: 3rem 2.5rem;
+                width: 95vw;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+            .option-card {
+                min-height: 160px;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Shapes -->
+    <div class="bg-glow-container">
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+        <div class="bg-glow-3"></div>
+    </div>
+
+    <!-- Presentation Slide Portal -->
+    <main class="slide-container">
+        
+        <!-- Header -->
+        <div class="slide-header">
+            <div class="slide-title-wrapper">
+                <span class="gemini-badge">Workshop</span>
+                <h1 class="slide-title">Gemini Enterprise</h1>
+            </div>
+            <p class="slide-subtitle">Hands-on 실습 가이드 및 실행 환경 포털</p>
+        </div>
+
+        <!-- Options Cards Grid -->
+        <div class="options-grid">
+            
+            <!-- Card 1: Guide Link -->
+            <a href="https://github.com/mee-nam-lee/gemini-enterprise-lab/blob/main/ge-lab-short/lab.md" target="_blank" class="option-card" id="card-guide">
+                <div>
+                    <div class="icon-container">
+                        <!-- Book Open Icon -->
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">실습 Guide</h2>
+                </div>
+                <p class="card-desc">Markdown 버전 실습 설명서 및 팁이 상세히 포함된 전체 문서를 확인합니다.</p>
+            </a>
+
+            <!-- Card 2: Environment Link -->
+            <a href="https://vertexaisearch.cloud.google.com/home/cid/aceefa34-6c99-4be2-a7c9-2eebea20a913" target="_blank" class="option-card" id="card-workspace">
+                <div>
+                    <div class="icon-container">
+                        <!-- External Link / Launch Icon -->
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">실행 환경 접속</h2>
+                </div>
+                <p class="card-desc">Vertex AI Search 및 Gemini Enterprise 실습 플랫폼 데모 콘솔에 접속합니다.</p>
+            </a>
+
+            <!-- Card 3: ID/Password Link (Disabled) -->
+            <div class="option-card disabled" id="card-accounts">
+                <div>
+                    <div class="icon-container">
+                        <!-- Key / Safe Icon -->
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">접속 ID/PW 확인 <span class="badge-coming">TBD</span></h2>
+                </div>
+                <p class="card-desc">데모 및 실습을 수행하기 위한 개인별 임시 구글 계정 정보(ID/Password) 링크입니다.</p>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="slide-footer">
+            <div class="footer-logo">
+                Google <span class="footer-logo-highlight">Cloud</span>
+            </div>
+            <div>© 2026. All rights reserved.</div>
+        </div>
+
+    </main>
+
+    <!-- Hover Spotlight Interactive Script -->
+    <script>
+        document.querySelectorAll('.option-card:not(.disabled)').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>
