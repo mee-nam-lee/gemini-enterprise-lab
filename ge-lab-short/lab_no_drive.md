@@ -486,10 +486,11 @@ Gemini Enterprise Canvas 기능을 설명하는 동영상을 만들어 보겠습
 
 새로운 노트북을 만들어서 다음을 소스로 추가합니다.
 
-- 웹사이트 : [https://docs.cloud.google.com/gemini/enterprise/docs/assistant-canvas?hl=ko](https://docs.cloud.google.com/gemini/enterprise/docs/assistant-canvas?hl=ko)
-- 이미지 : canvas.zip 파일을 다운 받아 압축을 푼 후 이미지를 업로드 합니다.
 
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image21.png" width="442" alt="">
+- pdf : Drive의 공유 폴더에서 canvas.pdf를 추가합니다.
+- 이미지 : Drive의 공유 폴더에서 canvas.zip을 다운 받아 압축을 푼 후 이미지를 업로드 합니다.
+
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/canvas_video.png" width="442" alt="">
 
 다음 Prompt로 동영상(Video)를 생성합니다.
 

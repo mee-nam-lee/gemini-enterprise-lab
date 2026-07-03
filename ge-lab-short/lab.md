@@ -541,8 +541,6 @@ LG '루미케어' - 공감하는 세탁 도우미를  인포그래픽으로 생
 
 새로운 노트북을 하나 생성합니다.
 
-- 노트북에서 파일 업로드가 가능한 경우
-
   - Drive 소스의 “공유 문서함” 에서 BQ Data Agent 에서  data_agent.zip을 다운받아 로컬 폴더에서 압축을 해제 합니다.
   - 파일 업로드를 통해 이미지 10개를 소스에 추가합니다.
 
@@ -566,10 +564,10 @@ Gemini Enterprise Canvas 기능을 설명하는 동영상을 만들어 보겠습
 
 새로운 노트북을 만들어서 다음을 소스로 추가합니다.
 
-- 웹사이트 : [https://docs.cloud.google.com/gemini/enterprise/docs/assistant-canvas?hl=ko](https://docs.cloud.google.com/gemini/enterprise/docs/assistant-canvas?hl=ko)
+- pdf : Drive의 공유 폴더에서 canvas.pdf를 추가합니다.
 - 이미지 : Drive의 공유 폴더에서 canvas.zip을 다운 받아 압축을 푼 후 이미지를 업로드 합니다.
 
-<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/image21.png" width="442" alt="">
+<img src="https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/refs/heads/main/ge-lab-short/images/canvas_video.png" width="442" alt="">
 
 다음 Prompt로 동영상(Video)를 생성합니다.
 
