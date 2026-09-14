@@ -1,1 +1,2681 @@
-Hello
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Enterprise Hands-on Workshop Portal</title>
+  <meta name="description" content="Gemini Enterprise 실습 가이드 동적 렌더링 포털 - 실시간 Markdown 렌더링 및 인터랙티브 핸즈온 가이드">
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Libraries for Dynamic Markdown Rendering (CDN) -->
+  <!-- Marked.js: High-speed Markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
+  <!-- DOMPurify: XSS sanitizer for safe dynamic rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <!-- Highlight.js: Code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       Google Color System & CSS Custom Properties
+       Clean White Background with Google Brand Point Colors
+       ========================================================================== */
+    :root {
+      --g-blue: #1a73e8;
+      --g-blue-hover: #1557b0;
+      --g-blue-light: #e8f0fe;
+      --g-red: #d93025;
+      --g-red-light: #fce8e6;
+      --g-yellow: #f9ab00;
+      --g-yellow-light: #fef7e0;
+      --g-green: #1e8e3e;
+      --g-green-hover: #137333;
+      --g-green-light: #e6f4ea;
+
+      --bg-main: #ffffff;
+      --bg-surface: #f8f9fa;
+      --bg-surface-elevated: #ffffff;
+      --bg-sidebar: #fafbfd;
+
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-muted: #80868b;
+      --text-code: #24292f;
+
+      --border-color: #dadce0;
+      --border-light: #f1f3f4;
+      --divider-color: #e8eaed;
+
+      --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+      --shadow-md: 0 2px 6px 2px rgba(60, 64, 67, 0.15), 0 1px 2px 0 rgba(60, 64, 67, 0.3);
+      --shadow-lg: 0 4px 14px 2px rgba(60, 64, 67, 0.15), 0 1px 3px 0 rgba(60, 64, 67, 0.25);
+      --shadow-hover: 0 6px 18px 2px rgba(26, 115, 232, 0.16), 0 2px 4px 0 rgba(60, 64, 67, 0.18);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+
+      --font-sans: 'Google Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+
+      --google-gradient: linear-gradient(90deg, #4285F4 0%, #34A853 33%, #FBBC05 66%, #EA4335 100%);
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       Top Progress & Header
+       ========================================================================== */
+    .google-bar {
+      height: 4px;
+      background: var(--google-gradient);
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    .reading-progress-bar {
+      height: 4px;
+      background: var(--google-gradient);
+      width: 0%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1001;
+      transition: width 0.1s ease-out;
+    }
+
+    header.app-header {
+      position: sticky;
+      top: 4px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 990;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .google-logo-svg {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .header-title-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .header-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .header-brand span.gemini {
+      color: var(--g-blue);
+    }
+
+    .header-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--g-blue-light);
+      color: var(--g-blue);
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(26, 115, 232, 0.2);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-full);
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-surface);
+      color: var(--g-blue);
+      border-color: var(--g-blue);
+      box-shadow: 0 1px 3px rgba(60,64,67,0.12);
+    }
+
+    .btn-primary {
+      background: var(--g-blue);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--g-blue-hover);
+      box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-green {
+      background: var(--g-green);
+      color: #ffffff;
+    }
+    .btn-green:hover {
+      background: var(--g-green-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-yellow {
+      background: var(--g-yellow);
+      color: #202124;
+    }
+    .btn-yellow:hover {
+      background: #e39a00;
+      transform: translateY(-1px);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    /* ==========================================================================
+       Main Views: Home Portal vs. Reader View
+       ========================================================================== */
+    #home-view {
+      display: block;
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    #reader-view {
+      display: none;
+      width: 100%;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* ==========================================================================
+       Home Portal View Styling
+       ========================================================================== */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding: 1.5rem 0 1rem;
+    }
+
+    .hero-title {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 780px;
+      margin: 0 auto 3rem;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* Labs Grid */
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .labs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .lab-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .lab-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: transparent;
+      transition: background 0.3s ease;
+    }
+
+    .lab-card.card-blue:hover::before { background: var(--g-blue); }
+    .lab-card.card-green:hover::before { background: var(--g-green); }
+    .lab-card.card-yellow:hover::before { background: var(--g-yellow); }
+
+    .lab-card:hover {
+      transform: translateY(-6px);
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-hover);
+    }
+
+    .lab-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .lab-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .lab-card:hover .lab-icon-box {
+      transform: scale(1.08);
+    }
+
+    .card-blue .lab-icon-box { background: var(--g-blue-light); color: var(--g-blue); }
+    .card-green .lab-icon-box { background: var(--g-green-light); color: var(--g-green); }
+    .card-yellow .lab-icon-box { background: var(--g-yellow-light); color: #b07200; }
+
+    .lab-badge-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .card-blue .lab-badge-pill { background: var(--g-blue-light); color: var(--g-blue); }
+    .card-green .lab-badge-pill { background: var(--g-green-light); color: var(--g-green); }
+    .card-yellow .lab-badge-pill { background: var(--g-yellow-light); color: #855300; }
+
+    .lab-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+
+    .lab-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+    }
+
+    .lab-description {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .lab-meta-list {
+      list-style: none;
+      border-top: 1px dashed var(--divider-color);
+      padding-top: 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .lab-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .lab-meta-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+
+    .lab-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border-top: 1px solid var(--divider-color);
+      padding-top: 1.25rem;
+    }
+
+    .lab-runtime-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Comparison Matrix Table */
+    .comparison-section {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      margin-bottom: 3.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .comparison-table-wrapper {
+      overflow-x: auto;
+      margin-top: 1.25rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--divider-color);
+      vertical-align: middle;
+    }
+
+    .comparison-table thead th {
+      background: #f8f9fa;
+      font-weight: 700;
+      color: var(--text-primary);
+      position: sticky;
+      top: 0;
+      border-bottom: 2px solid var(--border-color);
+      font-size: 0.92rem;
+    }
+
+    .comparison-table tr:hover td {
+      background: #fbfcfe;
+    }
+
+    .comparison-table .category-row th {
+      background: #f1f3f4;
+      font-weight: 700;
+      color: #1f1f1f;
+      padding: 0.75rem 1.1rem;
+      font-size: 0.95rem;
+      border-top: 2px solid #dadce0;
+      border-bottom: 1px solid #dadce0;
+    }
+
+    .feature-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    .feature-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .tag-check {
+      color: #137333;
+      background: #e6f4ea;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid rgba(30, 142, 62, 0.2);
+    }
+
+    .tag-skip {
+      color: #5f6368;
+      background: #f1f3f4;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid #e0e0e0;
+    }
+
+    .tag-skip-red {
+      color: #d93025;
+      background: #fce8e6;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid rgba(217, 48, 37, 0.25);
+    }
+
+    .tag-info {
+      color: #1a73e8;
+      background: #e8f0fe;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid rgba(26, 115, 232, 0.2);
+    }
+
+    /* ==========================================================================
+       Reader View (Dynamic Markdown Presentation)
+       ========================================================================== */
+    .reader-navbar {
+      position: sticky;
+      top: 57px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 980;
+      flex-wrap: wrap;
+    }
+
+    .reader-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .reader-lab-select {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: #ffffff;
+      color: var(--text-primary);
+      cursor: pointer;
+      outline: none;
+    }
+
+    .reader-lab-select:focus {
+      border-color: var(--g-blue);
+      box-shadow: 0 0 0 2px var(--g-blue-light);
+    }
+
+    .reader-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .reader-layout {
+      display: flex;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+      gap: 2rem;
+      position: relative;
+    }
+
+    /* Sidebar Table of Contents */
+    aside.reader-sidebar {
+      width: 290px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 110px;
+      height: calc(100vh - 125px);
+      overflow-y: auto;
+      padding: 1.5rem 1rem 2rem 0;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .toc-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.5rem;
+    }
+
+    .toc-search-input {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .toc-search-input:focus {
+      background: #ffffff;
+      border-color: var(--g-blue);
+      box-shadow: 0 0 0 2px var(--g-blue-light);
+    }
+
+    .toc-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .toc-link {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+      line-height: 1.4;
+      border-left: 2px solid transparent;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toc-link:hover {
+      color: var(--g-blue);
+      background: var(--g-blue-light);
+    }
+
+    .toc-link.active {
+      color: var(--g-blue);
+      font-weight: 600;
+      background: var(--g-blue-light);
+      border-left: 2px solid var(--g-blue);
+    }
+
+    .toc-link.level-2 { padding-left: 1.25rem; font-size: 0.84rem; }
+    .toc-link.level-3 { padding-left: 2rem; font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Reader Main Content */
+    main.reader-content {
+      flex: 1;
+      min-width: 0;
+      padding: 2rem 0;
+      max-width: 920px;
+    }
+
+    /* Markdown Rendered Typography */
+    .markdown-body {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #24292f;
+      word-break: break-word;
+    }
+
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3,
+    .markdown-body h4 {
+      color: var(--text-primary);
+      font-weight: 700;
+      scroll-margin-top: 120px;
+    }
+
+    /* ==========================================================================
+       Lab Reader Hero Banner & Highlights
+       ========================================================================== */
+    .lab-reader-hero {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lab-reader-hero.hero-blue { border-top: 4px solid var(--g-blue); }
+    .lab-reader-hero.hero-green { border-top: 4px solid var(--g-green); }
+    .lab-reader-hero.hero-yellow { border-top: 4px solid var(--g-yellow); }
+
+    .lab-reader-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      margin-bottom: 0.85rem;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-blue .lab-reader-hero-badge { background: var(--g-blue-light); color: var(--g-blue); }
+    .hero-green .lab-reader-hero-badge { background: var(--g-green-light); color: var(--g-green); }
+    .hero-yellow .lab-reader-hero-badge { background: var(--g-yellow-light); color: #855300; }
+
+    .lab-reader-hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.025em;
+      margin-bottom: 0.65rem;
+      line-height: 1.25;
+    }
+
+    .lab-reader-hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      max-width: 840px;
+    }
+
+    .lab-reader-meta-chips {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-full);
+      color: var(--text-secondary);
+    }
+
+    .meta-chip code {
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      background: transparent;
+      padding: 0;
+      border: none;
+    }
+
+    .meta-tag {
+      font-size: 0.75rem;
+      background: rgba(0,0,0,0.04);
+      padding: 0.25rem 0.65rem;
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Markdown Rendered Typography */
+    .markdown-body {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #24292f;
+      word-break: break-word;
+    }
+
+    .markdown-body h1 {
+      font-size: 1.85rem;
+      margin-top: 2rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #e2e8f0;
+      letter-spacing: -0.02em;
+      position: relative;
+    }
+
+    .markdown-body h1::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--g-blue);
+      border-radius: 2px;
+    }
+
+    /* Section Milestones: H2 with Step Counter Badge */
+    .markdown-body h2 {
+      font-size: 1.35rem;
+      margin-top: 3.25rem;
+      margin-bottom: 1.25rem;
+      padding: 0.75rem 1.15rem;
+      background: linear-gradient(90deg, #f0f6ff 0%, #ffffff 100%);
+      border-left: 4px solid var(--g-blue);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .markdown-body h2 .step-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: var(--g-blue);
+      color: #ffffff;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 1px 2px rgba(26, 115, 232, 0.3);
+      flex-shrink: 0;
+    }
+
+    .markdown-body h2 .h2-text {
+      flex: 1;
+    }
+
+    .markdown-body h3 {
+      font-size: 1.15rem;
+      margin-top: 2.25rem;
+      margin-bottom: 0.85rem;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .markdown-body h3 .h3-bullet {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--g-blue-light);
+      color: var(--g-blue);
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .markdown-body p {
+      margin-top: 0;
+      margin-bottom: 1.15rem;
+    }
+
+    .markdown-body a {
+      color: var(--g-blue);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .markdown-body a:hover {
+      color: var(--g-blue-hover);
+    }
+
+    .markdown-body strong {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .markdown-body ul,
+    .markdown-body ol {
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      padding-left: 1.8rem;
+    }
+
+    .markdown-body li {
+      margin-bottom: 0.45rem;
+    }
+
+    /* Prompt Cards (Enhanced for Hands-on testing) */
+    .code-block-wrapper {
+      position: relative;
+      margin: 1.5rem 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #fdfdfd;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+
+    .code-block-wrapper.prompt-card {
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--g-blue);
+      box-shadow: 0 2px 10px rgba(26, 115, 232, 0.08);
+      background: #ffffff;
+    }
+
+    .code-block-wrapper.prompt-card:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 4px 16px rgba(26, 115, 232, 0.14);
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: #f1f3f4;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .code-block-wrapper.prompt-card .code-block-header {
+      background: linear-gradient(90deg, #eff6ff 0%, #f8fafd 100%);
+      border-bottom: 1px solid #dbeafe;
+      color: #1e40af;
+    }
+
+    .prompt-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.01em;
+      text-transform: none;
+    }
+
+    .prompt-spark-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--g-blue);
+      flex-shrink: 0;
+      animation: pulseSpark 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseSpark {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    .code-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .code-copy-btn:hover {
+      background: var(--g-blue-light);
+      color: var(--g-blue);
+      border-color: var(--g-blue);
+      transform: translateY(-1px);
+    }
+
+    .code-copy-btn:active {
+      transform: translateY(0);
+    }
+
+    .code-copy-btn.copied {
+      background: #e6f4ea !important;
+      color: #137333 !important;
+      border-color: #34a853 !important;
+      font-weight: 600;
+    }
+
+    .markdown-body pre {
+      margin: 0;
+      padding: 1.15rem 1.35rem;
+      overflow-x: auto;
+      background: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .code-block-wrapper.prompt-card pre {
+      background: #fafcff;
+      color: #1e293b;
+    }
+
+    .markdown-body code:not(pre code) {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: #f1f3f4;
+      color: #c5221f;
+      padding: 0.2em 0.45em;
+      border-radius: 5px;
+      border: 1px solid #e2e8f0;
+      font-weight: 500;
+    }
+
+    /* Key Takeaway / Summary Banner */
+    .key-takeaways-box {
+      margin: 1.75rem 0;
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #f8fafd 0%, #edf4fd 100%);
+      border: 1px solid #c7ddfc;
+      border-left: 5px solid var(--g-blue);
+      box-shadow: 0 2px 6px rgba(26, 115, 232, 0.05);
+    }
+
+    .key-takeaways-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1a56db;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .key-takeaways-list {
+      margin: 0;
+      padding-left: 1.25rem;
+      font-size: 0.92rem;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+
+    .key-takeaways-list li {
+      margin-bottom: 0.35rem;
+    }
+
+    /* Callout Boxes */
+    .callout-box {
+      margin: 1.5rem 0;
+      padding: 1.1rem 1.35rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.9rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .callout-box.callout-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--g-blue);
+      color: #1e40af;
+    }
+
+    .callout-box.callout-tip {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid var(--g-green);
+      color: #166534;
+    }
+
+    .callout-box.callout-warning {
+      background: #fefce8;
+      border: 1px solid #fef08a;
+      border-left: 4px solid #ca8a04;
+      color: #854d0e;
+    }
+
+    .callout-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    /* Images */
+    .image-container {
+      margin: 1.75rem 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .image-container:hover {
+      box-shadow: 0 4px 14px rgba(60, 64, 67, 0.15);
+      border-color: #b0bec5;
+      transform: translateY(-1px);
+    }
+
+    .image-container img {
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      display: block;
+      cursor: zoom-in;
+      transition: opacity 0.2s ease;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .image-container:hover img {
+      opacity: 0.97;
+    }
+
+    .image-caption-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: #f8f9fa;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .image-caption-bar span.zoom-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--g-blue);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Bottom Lab Completion Card */
+    .lab-complete-card {
+      margin-top: 4.5rem;
+      padding: 2.75rem 2.25rem;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f6ff 100%);
+      border: 1px solid #bfdbfe;
+      border-top: 4px solid var(--g-blue);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(26, 115, 232, 0.08);
+    }
+
+    .lab-complete-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .lab-complete-desc {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.75rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .lab-complete-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+    }
+
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .markdown-body th,
+    .markdown-body td {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    .markdown-body th {
+      background: var(--bg-surface);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .markdown-body tr:nth-child(even) td {
+      background: #fafafa;
+    }
+
+    /* Loading Spinner & States */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 5rem 1rem;
+      gap: 1.25rem;
+      color: var(--text-secondary);
+    }
+
+    .google-spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--border-light);
+      border-top-color: var(--g-blue);
+      border-right-color: var(--g-red);
+      border-bottom-color: var(--g-yellow);
+      border-left-color: var(--g-green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-state {
+      background: var(--g-red-light);
+      border: 1px solid rgba(217, 48, 37, 0.3);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      color: #b3261e;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    /* Modal / Lightbox for Image Zoom & QR Code */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 2rem;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .modal-card img {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      border-radius: var(--radius-sm);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg-surface);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      transition: background 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    /* Back to top floating button */
+    .fab-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: var(--g-blue);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+      transition: all 0.2s ease;
+    }
+
+    .fab-top:hover {
+      background: var(--g-blue);
+      color: #ffffff;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .fab-top.visible {
+      display: flex;
+    }
+
+    /* Footer */
+    footer.app-footer {
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      padding: 2rem 1.5rem;
+      margin-top: auto;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-content {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--g-blue);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 960px) {
+      aside.reader-sidebar {
+        display: none;
+      }
+      .hero-title {
+        font-size: 2rem;
+      }
+      .labs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Google 4-Color Accent Top Bar & Reading Scroll Progress -->
+  <div class="google-bar"></div>
+  <div id="reading-progress" class="reading-progress-bar"></div>
+
+  <!-- Global Header -->
+  <header class="app-header">
+    <a href="#home" class="header-left" id="brand-link" onclick="navigateToHome(event)">
+      <!-- Google Brand Icon SVG -->
+      <svg class="google-logo-svg" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      <div class="header-title-wrap">
+        <span class="header-brand"><span class="gemini">Gemini</span> Enterprise</span>
+        <span class="header-badge">Hands-on Lab Portal</span>
+      </div>
+    </a>
+
+  </header>
+
+  <!-- =========================================================================
+       VIEW 1: HOME PORTAL (Catalog of 3 Labs & Resources)
+       ========================================================================= -->
+  <div id="home-view">
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <h1 class="hero-title">Gemini Enterprise Hands-on 실습 가이드</h1>
+      <p class="hero-subtitle">
+        기업 환경에 특화된 Gemini Enterprise의 핵심 AI 기능, 문서 심층 분석, Agent Designer 및 BigQuery 연동을 실습하는 포털입니다.
+      </p>
+    </section>
+
+    <!-- 3 Lab Cards Grid -->
+    <div class="section-heading">
+      <h2 class="section-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        실습 코스 선택 (3개 Lab)
+      </h2>
+      <span style="font-size:0.875rem; color:var(--text-muted);">원하시는 실습 코스를 클릭하면 가이드가 즉시 펼쳐집니다.</span>
+    </div>
+
+    <div class="labs-grid">
+      
+      <!-- CARD 1: Full Comprehensive Lab (ge-lab/instructions/en.md) -->
+      <div class="lab-card card-blue" id="card-standard">
+        <div>
+          <div class="lab-card-header">
+            <div class="lab-icon-box">
+              📘
+            </div>
+            <span class="lab-badge-pill">정규 종합 코스</span>
+          </div>
+          <h3 class="lab-title">종합 실습 가이드 (Full Course)</h3>
+          <div class="lab-subtitle">ge-lab/instructions/en.md</div>
+          <p class="lab-description">
+            Gemini Enterprise의 전반적인 아키텍처와 기초부터 심화까지 완주하는 종합 실습 코스입니다. Drive OAuth 설정, 멀티모달 분석, Agent Designer, BigQuery CA, MCP(Model Context Protocol) 연동 및 Model Armor 보안까지 체계적으로 다룹니다.
+          </p>
+          <ul class="lab-meta-list">
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>소요 시간: 약 90 ~ 120분</span>
+            </li>
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <span>환경 요건: Google Drive OAuth 승인 및 연동</span>
+            </li>
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>주요 기능: Video Intro, Excel/PPT, MCP 연동, Model Armor</span>
+            </li>
+          </ul>
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-runtime-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            동적 렌더링
+          </span>
+          <button class="btn btn-primary" onclick="loadLab('standard')">
+            실습 시작하기 &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- CARD 2: Short Lab with Drive (ge-lab-short/lab.md) -->
+      <div class="lab-card card-green" id="card-short">
+        <div>
+          <div class="lab-card-header">
+            <div class="lab-icon-box">
+              ⚡
+            </div>
+            <span class="lab-badge-pill">핵심 단축 코스</span>
+          </div>
+          <h3 class="lab-title">단축 실습 가이드 (Drive 연동형)</h3>
+          <div class="lab-subtitle">ge-lab-short/lab.md</div>
+          <p class="lab-description">
+            시간 제약이 있는 워크샵 세션에 최적화된 핵심 압축 실습 코스입니다. Google Drive 승인 후 실시간 검색, 엑셀/PPT 데이터 분석, Canvas 및 NotebookLM 기획, 팀원 간 세션 공유, 멀티 에이전트 구축 및 BigQuery CA 에이전트를 실습합니다.
+          </p>
+          <ul class="lab-meta-list">
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>소요 시간: 약 45 ~ 60분</span>
+            </li>
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <span>환경 요건: Google Drive OAuth 승인 및 연동</span>
+            </li>
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>주요 기능: Canvas, NotebookLM, 멀티 에이전트, BQ CA</span>
+            </li>
+          </ul>
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-runtime-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            동적 렌더링
+          </span>
+          <button class="btn btn-green" onclick="loadLab('short')">
+            실습 시작하기 &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- CARD 3: Short Lab without Drive (ge-lab-short/lab_no_drive.md) -->
+      <div class="lab-card card-yellow" id="card-no-drive">
+        <div>
+          <div class="lab-card-header">
+            <div class="lab-icon-box">
+              🚀
+            </div>
+            <span class="lab-badge-pill">독립형 / No-Drive</span>
+          </div>
+          <h3 class="lab-title">단축 실습 가이드 (무설정 / 로컬 업로드)</h3>
+          <div class="lab-subtitle">ge-lab-short/lab_no_drive.md</div>
+          <p class="lab-description">
+            Google Drive OAuth 승인이나 권한 설정 절차 없이 즉시 실습을 시작할 수 있는 독립형 코스입니다. 로컬 파일 직접 첨부 방식을 활용하여 보안 제한 환경에서도 검색, 엑셀/PPT 분석, Canvas, NotebookLM 및 에이전트 구축 실습을 원활히 진행합니다.
+          </p>
+          <ul class="lab-meta-list">
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>소요 시간: 약 45 ~ 60분</span>
+            </li>
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>환경 요건: 사전 승인 불필요 (즉시 시작)</span>
+            </li>
+            <li class="lab-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>주요 기능: 로컬 업로드 분석, Canvas, Agent Designer, BQ CA</span>
+            </li>
+          </ul>
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-runtime-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            동적 렌더링
+          </span>
+          <button class="btn btn-yellow" onclick="loadLab('no-drive')">
+            실습 시작하기 &rarr;
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Comparison Matrix Section -->
+    <div class="comparison-section">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+        <div>
+          <h3 style="font-size:1.25rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            코스별 상세 기능 및 목차 비교표
+          </h3>
+          <p style="font-size:0.875rem; color:var(--text-secondary); margin-top:0.25rem;">
+            각 실습 가이드의 목차를 기준으로 포함된 기능과 실습 단계를 한눈에 비교할 수 있습니다.
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; font-size:0.8rem;">
+          <span class="tag-check">✓ 실습 포함</span>
+          <span class="tag-skip-red">✕ 미포함</span>
+          <span class="tag-info">ℹ️ 개념 소개</span>
+        </div>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th style="width: 32%;">목차 및 세부 실습 항목</th>
+              <th style="width: 23%;">1. 종합 가이드 (Full)</th>
+              <th style="width: 23%;">2. 단축 (Drive 연동)</th>
+              <th style="width: 22%;">3. 단축 (No-Drive)</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- CATEGORY 1: 기본 개요 및 환경 설정 -->
+            <tr class="category-row">
+              <th colspan="4">📋 1. 기본 개요 및 환경 설정 (Overview & Setup)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">대상 Markdown 파일</span>
+                <span class="feature-sub">저장소 내 원본 가이드 파일 경로</span>
+              </td>
+              <td><code>ge-lab/instructions/en.md</code></td>
+              <td><code>ge-lab-short/lab.md</code></td>
+              <td><code>ge-lab-short/lab_no_drive.md</code></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">예상 소요 시간</span>
+                <span class="feature-sub">워크샵 진행 권장 소요 시간</span>
+              </td>
+              <td><strong>약 90 ~ 120분</strong> (정규 과정)</td>
+              <td><strong>약 45 ~ 60분</strong> (핵심 압축)</td>
+              <td><strong>약 45 ~ 60분</strong> (핵심 압축)</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">기능 소개 동영상</span>
+                <span class="feature-sub">YouTube 사전 기능 오리엔테이션</span>
+              </td>
+              <td><span class="tag-check">✓ 실습 포함 (유튜브 링크)</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Google Drive OAuth Setup</span>
+                <span class="feature-sub">Drive 연동 권한 승인 및 맞춤설정</span>
+              </td>
+              <td><span class="tag-check">✓ 필수 설정 (OAuth 승인)</span></td>
+              <td><span class="tag-check">✓ 필수 설정 (OAuth 승인)</span></td>
+              <td><span class="tag-skip">✕ 사전 설정 불필요 (즉시 시작)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">실습 파일 제공/업로드 방식</span>
+                <span class="feature-sub">예제 Excel/PPT 파일 접근 방식</span>
+              </td>
+              <td>Google Drive 연동 및 동기화</td>
+              <td>Google Drive 연동 및 동기화</td>
+              <td>대화창 직접 첨부 (로컬 파일 업로드)</td>
+            </tr>
+
+            <!-- CATEGORY 2: 기본 질의 및 협업 기능 -->
+            <tr class="category-row">
+              <th colspan="4">💬 2. 기본 질의 및 협업 기능 (Core Features & Collaboration)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">기본 기능 익히기 & 실시간 검색</span>
+                <span class="feature-sub">스마트홈, CES 2026, 경쟁사 트렌드 분석</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">대화 세션 실시간 공유</span>
+                <span class="feature-sub">상단 공유 버튼을 통한 대화 세션 URL 공유</span>
+              </td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (동료와 URL 공유)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (동료와 URL 공유)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">입력창(Omnibar) & 답변 품질 팁</span>
+                <span class="feature-sub">생산성 향상을 위한 프롬프트 가이드</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+            </tr>
+
+            <!-- CATEGORY 3: 문서 및 데이터 심층 분석 -->
+            <tr class="category-row">
+              <th colspan="4">📊 3. 문서 및 데이터 심층 분석 (Data & Document Analysis)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Excel 분석 - Survey (설문 데이터)</span>
+                <span class="feature-sub">Excel_example_survey.xlsx 심층 분석</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함 (로컬 파일 업로드)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Excel 분석 - 매출 통계 분석</span>
+                <span class="feature-sub">Coffee_Chain_Sales.xlsx 통계 분석</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함 (로컬 파일 업로드)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">PowerPoint (.pptx) 분석</span>
+                <span class="feature-sub">sample_pitchdeck.pptx 내용 요약 및 질의</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함 (로컬 파일 업로드)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">사내 데이터 검색 (Search Company Data)</span>
+                <span class="feature-sub">Google Drive / GCS 데이터소스 연동 검색</span>
+              </td>
+              <td><span class="tag-check">✓ 포함 (Drive 및 GCS)</span></td>
+              <td><span class="tag-check">✓ 포함 (사내 규정 문서)</span></td>
+              <td><span class="tag-skip">✕ 미포함 (사내 연동 생략)</span></td>
+            </tr>
+
+            <!-- CATEGORY 4: 크리에이티브, 미디어 및 심층 기획 -->
+            <tr class="category-row">
+              <th colspan="4">🎨 4. 크리에이티브, 미디어 및 심층 기획 (Creative, Media & Research)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">미디어 생성 (Imagen 이미지 & Veo 비디오)</span>
+                <span class="feature-sub">텍스트 프롬프트 기반 고화질 이미지/동영상 생성</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Deep Research (심층 웹 리서치)</span>
+                <span class="feature-sub">수백 개 소스 자율 탐색 및 상세 보고서 생성</span>
+              </td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+              <td><span class="tag-check">✓ 포함</span></td>
+            </tr>
+            <tr style="background-color: #fffdf5;">
+              <td>
+                <span class="feature-name" style="color:#b06000;">Canvas (슬라이드 생성 & 영상 기획)</span>
+                <span class="feature-sub">구글 슬라이드 자동 생성 및 Canvas 설명 영상 기획</span>
+              </td>
+              <td><span class="tag-skip-red">✕ 미포함 (Canvas 실습 없음)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (슬라이드/영상 제작)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (슬라이드/영상 제작)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">NotebookLM (아이디어 기획 & 리서치)</span>
+                <span class="feature-sub">자료 기반 특화 어시스턴트 및 아이디어 구체화</span>
+              </td>
+              <td><span class="tag-check">✓ 포함 (루미케어, 센티넬 등)</span></td>
+              <td><span class="tag-check">✓ 포함 (홈 가디언, Cinematic 등)</span></td>
+              <td><span class="tag-check">✓ 포함 (홈 가디언, Cinematic 등)</span></td>
+            </tr>
+
+            <!-- CATEGORY 5: 에이전트 시스템 구축 -->
+            <tr class="category-row">
+              <th colspan="4">🤖 5. 에이전트 시스템 구축 (Agent Systems)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Agent Designer (노코드 맞춤 에이전트)</span>
+                <span class="feature-sub">자연어 프롬프트와 데이터 기반 에이전트 생성</span>
+              </td>
+              <td><span class="tag-check">✓ 포함 (단일 에이전트 제작)</span></td>
+              <td><span class="tag-check">✓ 포함 (단일 에이전트 제작)</span></td>
+              <td><span class="tag-check">✓ 포함 (단일 에이전트 제작)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">에이전트 스케줄링 (Agent Scheduling)</span>
+                <span class="feature-sub">정해진 시간에 자동으로 에이전트 작업 실행</span>
+              </td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+              <td><span class="tag-check">✓ 실습 포함</span></td>
+              <td><span class="tag-check">✓ 실습 포함</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">멀티 에이전트 시스템 (Multi-Agent & Hand-off)</span>
+                <span class="feature-sub">채용 총괄 Root + 평가/검증/면접 3개 Sub-Agent</span>
+              </td>
+              <td><span class="tag-skip">✕ 미포함 (단일 에이전트 중심)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (채용 프로세스 협업)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (채용 프로세스 협업)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Custom Agent 연동 (외부 에이전트)</span>
+                <span class="feature-sub">Newspaper Agent, Restaurant Finder Agent 등</span>
+              </td>
+              <td><span class="tag-check">✓ 포함 (커스텀 등록 실습)</span></td>
+              <td><span class="tag-check">✓ 포함 (ADK/A2UI 실습)</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">BigQuery CA (Conversational Analytics) Agent</span>
+                <span class="feature-sub">자연어로 BigQuery 데이터 분석 및 SQL 자동 생성</span>
+              </td>
+              <td><span class="tag-check">✓ 포함 (API 연동 & Studio 직접 사용)</span></td>
+              <td><span class="tag-check">✓ 포함 (CA 에이전트 질의)</span></td>
+              <td><span class="tag-check">✓ 포함 (CA 에이전트 질의)</span></td>
+            </tr>
+
+            <!-- CATEGORY 6: 도구 확장 및 보안 관리 -->
+            <tr class="category-row">
+              <th colspan="4">🛡️ 6. 도구 확장 및 보안 관리 (Tools, Security & Add-ons)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">MCP (Model Context Protocol) 연동</span>
+                <span class="feature-sub">대화창 및 Agent Designer 내 구내식당 식단 연동</span>
+              </td>
+              <td><span class="tag-check">✓ 심화 실습 (대화창 & Designer)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (Agent Designer)</span></td>
+              <td><span class="tag-check">✓ 실습 포함 (Agent Designer)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Nano Banana (배너 이미지 & Resize)</span>
+                <span class="feature-sub">규격별 광고 배너 자동 리사이징 실습</span>
+              </td>
+              <td><span class="tag-check">✓ 실습 포함</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Model Armor (기업 민감 정보 비식별화)</span>
+                <span class="feature-sub">전화번호/이메일 등 PII 실시간 마스킹 보안 통제</span>
+              </td>
+              <td><span class="tag-check">✓ 심화 실습 (실제 마스킹 규칙 테스트)</span></td>
+              <td><span class="tag-info">ℹ️ 개념 소개</span></td>
+              <td><span class="tag-info">ℹ️ 개념 소개</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="feature-name">Chrome Integration (브라우저 통합)</span>
+                <span class="feature-sub">Chrome 브라우저 확장 기능을 통한 연동</span>
+              </td>
+              <td><span class="tag-check">✓ 실습 포함</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+              <td><span class="tag-skip">✕ 미포함</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================================
+       VIEW 2: DYNAMIC MARKDOWN READER VIEW
+       ========================================================================= -->
+  <div id="reader-view">
+    
+    <!-- Reader Sub-Navbar -->
+    <div class="reader-navbar">
+      <div class="reader-nav-left">
+        <button class="btn btn-outline btn-sm" onclick="navigateToHome(event)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          포털 홈으로
+        </button>
+        <span style="color:var(--border-color);">|</span>
+        <label for="lab-switcher" style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">실습 변경:</label>
+        <select id="lab-switcher" class="reader-lab-select" onchange="onLabSelectChange(this.value)">
+          <option value="standard">1. 종합 실습 가이드 (Full Course)</option>
+          <option value="short">2. 단축 실습 가이드 (Drive 연동형)</option>
+          <option value="no-drive">3. 단축 실습 가이드 (No-Drive 독립형)</option>
+        </select>
+      </div>
+
+      <div class="reader-nav-right">
+        <button class="btn btn-outline btn-sm" onclick="reloadCurrentLab()" title="최신 Markdown 다시 읽어오기">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          새로고침
+        </button>
+        <a id="github-source-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="GitHub 저장소에서 원본 보기">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          GitHub 원본
+        </a>
+      </div>
+    </div>
+
+    <!-- Reader Layout: Sidebar (TOC) + Markdown Content -->
+    <div class="reader-layout">
+      
+      <!-- Sticky Sidebar: Table of Contents -->
+      <aside class="reader-sidebar" id="reader-sidebar">
+        <div class="toc-header">
+          <span>목차 (Table of Contents)</span>
+          <span id="toc-count" style="font-size:0.75rem; color:var(--g-blue); font-weight:600;"></span>
+        </div>
+        <input type="text" id="toc-search" class="toc-search-input" placeholder="목차 빠른 검색..." oninput="filterToc(this.value)">
+        <nav class="toc-nav" id="toc-container">
+          <!-- Dynamically populated TOC items -->
+        </nav>
+      </aside>
+
+      <!-- Main Markdown Content -->
+      <main class="reader-content">
+        <div id="markdown-container" class="markdown-body">
+          <!-- Dynamically rendered markdown HTML will be injected here -->
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Floating Back to Top Button -->
+  <button class="fab-top" id="fab-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" title="맨 위로 이동">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+  </button>
+
+  <!-- QR Code Modal -->
+  <div class="modal-backdrop" id="qr-modal" onclick="if(event.target === this) closeQrModal()">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeQrModal()">&times;</button>
+      <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-primary);">모바일 접속용 QR 코드</h3>
+      <p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:1.25rem; text-align:center;">
+        PC 환경에서 계정 확인 링크 접속이 제한될 경우 모바일 카메라로 스캔하세요.
+      </p>
+      <img src="qrcode.png" alt="Gemini Enterprise Access QR Code" onerror="this.src='landing-page/qrcode.png'">
+      <p style="margin-top:1rem; font-size:0.85rem; color:var(--g-blue); font-weight:500;">
+        실습용 임시 구글 계정 확인 시트
+      </p>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="modal-backdrop" id="lightbox-modal" onclick="if(event.target === this) closeLightbox()">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeLightbox()">&times;</button>
+      <img id="lightbox-img" src="" alt="확대 이미지">
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div>
+        <strong>Google Cloud</strong> &bull; Gemini Enterprise Hands-on Workshop
+        <span style="margin-left:0.5rem; color:var(--text-muted);">| Markdown Live Dynamic Rendering</span>
+      </div>
+      <div class="footer-links">
+        <a href="#home" onclick="navigateToHome(event)">실습 포털 홈</a>
+        <a href="https://github.com/mee-nam-lee/gemini-enterprise-lab" target="_blank" rel="noopener noreferrer">GitHub 저장소</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       JavaScript Logic: Dynamic Markdown Fetch & Render Engine
+       ========================================================================= -->
+  <script>
+    /**
+     * Lab Catalog Configuration
+     * Path is relative to the repository root where index.html is located.
+     */
+    const LABS = {
+      'standard': {
+        id: 'standard',
+        title: '종합 실습 가이드 (Full Course)',
+        desc: 'Gemini Enterprise의 기초 아키텍처부터 Drive OAuth 승인, 멀티모달 분석, Agent Designer, BigQuery CA, MCP 연동, Model Armor 보안까지 완주하는 종합 실습 과정입니다.',
+        badgeIcon: '📘',
+        badgeText: '정규 종합 코스 (Full Course)',
+        colorClass: 'hero-blue',
+        duration: '약 90 ~ 120분',
+        env: 'Google Drive 연동 필수',
+        path: 'ge-lab/instructions/en.md',
+        tags: ['📘 전체 코스', '🎬 동영상 가이드', '📁 Drive 연동', '🔌 MCP 연동', '🛡️ Model Armor'],
+        githubUrl: 'https://github.com/mee-nam-lee/gemini-enterprise-lab/blob/main/ge-lab/instructions/en.md',
+        rawFallback: 'https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/main/ge-lab/instructions/en.md'
+      },
+      'short': {
+        id: 'short',
+        title: '단축 실습 가이드 (Drive 연동형)',
+        desc: 'Google Drive 연동 기반으로 시장 검색, Excel/PPT 데이터 분석, Canvas 슬라이드/영상 기획, NotebookLM 및 채용 총괄 멀티 에이전트 체계를 압축 실습합니다.',
+        badgeIcon: '⚡',
+        badgeText: '핵심 단축 코스 (Drive 연동형)',
+        colorClass: 'hero-green',
+        duration: '약 45 ~ 60분',
+        env: 'Google Drive 연동 필수',
+        path: 'ge-lab-short/lab.md',
+        tags: ['⚡ 압축 실습', '📁 Drive 연동', '📊 Excel/PPT', '🎨 Canvas', '🤖 멀티 에이전트', '📈 BigQuery CA'],
+        githubUrl: 'https://github.com/mee-nam-lee/gemini-enterprise-lab/blob/main/ge-lab-short/lab.md',
+        rawFallback: 'https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/main/ge-lab-short/lab.md'
+      },
+      'no-drive': {
+        id: 'no-drive',
+        title: '단축 실습 가이드 (No-Drive 독립형)',
+        desc: 'Drive OAuth 승인 절차 없이 로컬 파일 직접 첨부 방식으로 검색, 문서 분석, Canvas, NotebookLM 및 채용 총괄 멀티 에이전트를 즉시 실습하는 무설정 코스입니다.',
+        badgeIcon: '🚀',
+        badgeText: '독립형 코스 (No-Drive 무설정)',
+        colorClass: 'hero-yellow',
+        duration: '약 45 ~ 60분',
+        env: '사전 설정 불필요 (로컬 파일 업로드)',
+        path: 'ge-lab-short/lab_no_drive.md',
+        tags: ['🚀 무설정 즉시시작', '💻 로컬 파일 업로드', '📊 Excel/PPT', '🎨 Canvas', '🤖 멀티 에이전트', '📈 BigQuery CA'],
+        githubUrl: 'https://github.com/mee-nam-lee/gemini-enterprise-lab/blob/main/ge-lab-short/lab_no_drive.md',
+        rawFallback: 'https://raw.githubusercontent.com/mee-nam-lee/gemini-enterprise-lab/main/ge-lab-short/lab_no_drive.md'
+      }
+    };
+
+    let currentLabId = null;
+    let headingElements = [];
+
+    // Configure Marked.js options
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({
+        gfm: true,
+        breaks: true,
+        headerIds: true,
+        mangle: false,
+        highlight: function(code, lang) {
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return hljs.highlight(code, { language: lang }).value;
+            } catch (__) {}
+          }
+          return hljs.highlightAuto(code).value;
+        }
+      });
+    }
+
+    /**
+     * Handle Initial Page Load & URL Routing
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      handleRoute();
+      setupScrollEvents();
+    });
+
+    window.addEventListener('popstate', () => {
+      handleRoute();
+    });
+
+    function handleRoute() {
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash.replace('#', '');
+
+      let labKey = params.get('lab') || hash;
+      
+      // Map potential alias
+      if (labKey === 'ge-lab' || labKey === 'full') labKey = 'standard';
+      if (labKey === 'ge-lab-short') labKey = 'short';
+      if (labKey === 'ge-lab-no-drive' || labKey === 'nodrive') labKey = 'no-drive';
+
+      if (labKey && LABS[labKey]) {
+        loadLab(labKey, false);
+      } else {
+        showHomeView(false);
+      }
+    }
+
+    /**
+     * Switch Views: Home vs Reader
+     */
+    function showHomeView(pushHistory = true) {
+      currentLabId = null;
+      document.getElementById('home-view').style.display = 'block';
+      document.getElementById('reader-view').style.display = 'none';
+      document.title = 'Gemini Enterprise Hands-on Workshop Portal';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (pushHistory) {
+        const url = new URL(window.location);
+        url.searchParams.delete('lab');
+        url.hash = '';
+        window.history.pushState({}, '', url.pathname);
+      }
+    }
+
+    function navigateToHome(e) {
+      if (e) e.preventDefault();
+      showHomeView(true);
+    }
+
+    function onLabSelectChange(labId) {
+      if (labId && LABS[labId]) {
+        loadLab(labId, true);
+      }
+    }
+
+    /**
+     * Dynamic Markdown Loader
+     * Fetches the markdown file from disk/server with cache-busting
+     */
+    async function loadLab(labId, pushHistory = true) {
+      const lab = LABS[labId];
+      if (!lab) return;
+
+      currentLabId = labId;
+
+      // Update UI view states
+      document.getElementById('home-view').style.display = 'none';
+      document.getElementById('reader-view').style.display = 'block';
+      document.getElementById('lab-switcher').value = labId;
+      document.getElementById('github-source-link').href = lab.githubUrl;
+      document.title = `${lab.title} - Gemini Enterprise Lab`;
+
+      if (pushHistory) {
+        const url = new URL(window.location);
+        url.searchParams.set('lab', labId);
+        window.history.pushState({ lab: labId }, '', url);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const container = document.getElementById('markdown-container');
+      container.innerHTML = `
+        <div class="loading-state">
+          <div class="google-spinner"></div>
+          <p><strong>${lab.title}</strong> 마크다운 문서를 동적으로 불러오는 중입니다...</p>
+          <span style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">${lab.path}</span>
+        </div>
+      `;
+
+      try {
+        // Cache buster ensures that when md files are updated in the repo, the browser always gets the latest version!
+        const cacheBuster = Date.now();
+        let markdownText = null;
+
+        try {
+          const res = await fetch(`${lab.path}?_cb=${cacheBuster}`, { cache: 'no-store' });
+          if (res.ok) {
+            markdownText = await res.text();
+          }
+        } catch (fetchErr) {
+          console.warn('Relative path fetch failed, trying fallback to raw GitHub...', fetchErr);
+        }
+
+        // If local/relative fetch fails (e.g. running on custom domain or CORS issue), fallback to GitHub raw
+        if (!markdownText) {
+          const rawRes = await fetch(`${lab.rawFallback}?_cb=${cacheBuster}`);
+          if (rawRes.ok) {
+            markdownText = await rawRes.text();
+          } else {
+            throw new Error(`파일을 불러올 수 없습니다 (HTTP ${rawRes.status})`);
+          }
+        }
+
+        // Render Markdown to HTML
+        renderMarkdown(markdownText, lab);
+
+      } catch (err) {
+        console.error('Markdown loading error:', err);
+        container.innerHTML = `
+          <div class="error-state">
+            <h3 style="margin-bottom:0.75rem;">문서 로드 실패</h3>
+            <p style="margin-bottom:1rem;">Markdown 문서를 동적으로 가져오는데 문제가 발생했습니다.<br>(${err.message})</p>
+            <div style="display:flex; justify-content:center; gap:0.75rem;">
+              <button class="btn btn-primary btn-sm" onclick="reloadCurrentLab()">다시 시도</button>
+              <a href="${lab.githubUrl}" target="_blank" class="btn btn-outline btn-sm">GitHub에서 원본 보기</a>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function reloadCurrentLab() {
+      if (currentLabId) {
+        loadLab(currentLabId, false);
+      }
+    }
+
+    /**
+     * Render Markdown with Marked.js + Custom Enhancements
+     */
+    function renderMarkdown(rawMd, lab) {
+      const container = document.getElementById('markdown-container');
+
+      // Top Hero Banner
+      const heroHtml = `
+        <div class="lab-reader-hero ${lab.colorClass}">
+          <div class="lab-reader-hero-badge">
+            ${lab.badgeIcon} ${lab.badgeText}
+          </div>
+          <h1 class="lab-reader-hero-title">${lab.title}</h1>
+          <p class="lab-reader-hero-desc">${lab.desc}</p>
+          <div class="lab-reader-meta-chips">
+            <span class="meta-chip">⏱️ 소요시간: <strong>${lab.duration}</strong></span>
+            <span class="meta-chip">⚙️ 환경: <strong>${lab.env}</strong></span>
+            <span class="meta-chip">📁 파일: <code>${lab.path}</code></span>
+          </div>
+          <div style="margin-top:0.9rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${lab.tags.map(t => `<span class="meta-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      `;
+
+      // Parse with marked
+      let html = marked.parse(rawMd);
+
+      // Sanitize with DOMPurify while allowing images and attributes
+      if (typeof DOMPurify !== 'undefined') {
+        html = DOMPurify.sanitize(html, {
+          ADD_TAGS: ['iframe', 'button', 'svg', 'path'],
+          ADD_ATTR: ['target', 'rel', 'allowfullscreen', 'frameborder', 'width', 'height', 'style', 'loading']
+        });
+      }
+
+      // Bottom completion card
+      const completeHtml = `
+        <div class="lab-complete-card">
+          <div style="font-size:2.5rem; margin-bottom:0.75rem;">🎉</div>
+          <h3 class="lab-complete-title">실습을 성공적으로 완료하셨습니다!</h3>
+          <p class="lab-complete-desc">
+            Gemini Enterprise의 핵심 기능 실습을 마쳤습니다. 다른 실습 코스를 체험하거나 메인 포털로 이동할 수 있습니다.
+          </p>
+          <div class="lab-complete-actions">
+            <button class="btn btn-outline" onclick="navigateToHome(event)">
+              ← 포털 홈으로 이동
+            </button>
+            ${lab.id !== 'short' ? `<button class="btn btn-green" onclick="loadLab('short')">⚡ 단축(Drive) 코스 보기</button>` : ''}
+            ${lab.id !== 'no-drive' ? `<button class="btn btn-yellow" onclick="loadLab('no-drive')">🚀 단축(No-Drive) 코스 보기</button>` : ''}
+            ${lab.id !== 'standard' ? `<button class="btn btn-primary" onclick="loadLab('standard')">📘 종합 코스 보기</button>` : ''}
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = heroHtml + html + completeHtml;
+
+      // Post-processing enhancements
+      processHeadings(container);
+      processCodeBlocks(container);
+      processImages(container);
+      processTables(container);
+      processCallouts(container);
+      processKeyTakeaways(container);
+      processExternalLinks(container);
+
+      // Build Table of Contents
+      buildToc();
+    }
+
+    /**
+     * Process Key Takeaways / Summary lists (render as clean highlight card)
+     */
+    function processKeyTakeaways(container) {
+      const uls = container.querySelectorAll('ul');
+      uls.forEach(ul => {
+        const prev = ul.previousElementSibling;
+        if (!prev) return;
+        const prevText = prev.innerText.trim();
+        // Check if preceding element mentions tips, summary, or takeaways
+        if (/활용 가이드 및 팁|핵심 정리|Key Takeaways|주요 팁|실습 팁|참고 사항/i.test(prevText)) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'key-takeaways-box';
+          wrapper.innerHTML = `
+            <div class="key-takeaways-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
+              <span>핵심 활용 팁 &amp; 가이드 요약</span>
+            </div>
+          `;
+          ul.parentNode.insertBefore(wrapper, ul);
+          ul.className = 'key-takeaways-list';
+          wrapper.appendChild(ul);
+        }
+      });
+    }
+
+    /**
+     * Process Headings: assign slug IDs for TOC & Anchor Links, format H2 milestone steps and H3 sub-bullets
+     */
+    function processHeadings(container) {
+      headingElements = [];
+      const headings = container.querySelectorAll('h1, h2, h3');
+      let stepCounter = 1;
+
+      headings.forEach((heading, index) => {
+        // Skip hero title in heading list to keep TOC focused on content sections
+        if (heading.classList.contains('lab-reader-hero-title')) return;
+
+        // Strip out HTML tags or images from text for slug
+        const cleanText = heading.textContent.trim();
+        if (!cleanText) return;
+
+        let slug = heading.getAttribute('id');
+        if (!slug) {
+          slug = 'section-' + index + '-' + cleanText.toLowerCase()
+            .replace(/[^\w\uAC00-\uD7A3]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+          heading.setAttribute('id', slug);
+        }
+
+        const level = parseInt(heading.tagName.replace('H', ''), 10);
+
+        // Visual enhancement: Format H2 milestone steps
+        if (level === 2) {
+          const originalContent = heading.innerHTML;
+          heading.innerHTML = `
+            <span class="step-pill">Step ${stepCounter}</span>
+            <span class="h2-text">${originalContent}</span>
+          `;
+          stepCounter++;
+        } else if (level === 3) {
+          const originalContent = heading.innerHTML;
+          heading.innerHTML = `
+            <span class="h3-bullet">&bull;</span>
+            <span class="h3-text">${originalContent}</span>
+          `;
+        }
+
+        headingElements.push({
+          element: heading,
+          id: slug,
+          text: cleanText,
+          level: level
+        });
+      });
+    }
+
+    /**
+     * Build Dynamic Table of Contents (TOC)
+     */
+    function buildToc() {
+      const tocContainer = document.getElementById('toc-container');
+      const tocCount = document.getElementById('toc-count');
+      tocContainer.innerHTML = '';
+
+      if (headingElements.length === 0) {
+        tocContainer.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted); padding:0.5rem;">목차가 없습니다.</div>';
+        tocCount.textContent = '';
+        return;
+      }
+
+      tocCount.textContent = `${headingElements.length}개 섹션`;
+
+      const fragment = document.createDocumentFragment();
+      headingElements.forEach(item => {
+        const a = document.createElement('a');
+        a.href = '#' + item.id;
+        a.className = `toc-link level-${item.level}`;
+        a.textContent = item.text;
+        a.title = item.text;
+
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.getElementById(item.id);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, null, '#' + item.id);
+            setActiveTocLink(item.id);
+          }
+        });
+
+        fragment.appendChild(a);
+      });
+
+      tocContainer.appendChild(fragment);
+    }
+
+    function setActiveTocLink(activeId) {
+      document.querySelectorAll('.toc-link').forEach(link => {
+        if (link.getAttribute('href') === '#' + activeId) {
+          link.classList.add('active');
+          link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+
+    function filterToc(query) {
+      const term = query.toLowerCase().trim();
+      document.querySelectorAll('.toc-link').forEach(link => {
+        const text = link.textContent.toLowerCase();
+        if (!term || text.includes(term)) {
+          link.style.display = 'block';
+        } else {
+          link.style.display = 'none';
+        }
+      });
+    }
+
+    /**
+     * Process Code Blocks: Add copy button & header bar
+     */
+    function processCodeBlocks(container) {
+      const pres = container.querySelectorAll('pre');
+
+      pres.forEach(pre => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+
+        // Detect language
+        let lang = 'CODE';
+        const classes = code.className.split(' ');
+        for (const cls of classes) {
+          if (cls.startsWith('language-')) {
+            lang = cls.replace('language-', '').toUpperCase();
+            break;
+          }
+        }
+
+        const codeText = code.innerText.trim();
+
+        // Check if this is a workshop prompt block
+        const isPrompt = lang === 'TEXT' || lang === 'PROMPT' || lang === 'CODE' ||
+          /요약해줘|작성해줘|분석해줘|제안해줘|알려줘|추천해줘|비교해줘|만들어줘|정리해줘|Role|Goal|Protocol|Output/i.test(codeText);
+
+        // Wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = isPrompt ? 'code-block-wrapper prompt-card' : 'code-block-wrapper';
+
+        const header = document.createElement('div');
+        header.className = 'code-block-header';
+
+        if (isPrompt) {
+          header.innerHTML = `
+            <span class="prompt-badge">
+              <svg class="prompt-spark-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L14.39 8.26L21 9.27L16.09 14.14L17.45 21.02L12 17.77L6.55 21.02L7.91 14.14L3 9.27L9.61 8.26L12 2Z"/>
+              </svg>
+              <span>실습 프롬프트 (Prompt Copy & Paste)</span>
+            </span>
+            <button class="code-copy-btn" title="프롬프트 클립보드에 복사">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>복사하기</span>
+            </button>
+          `;
+        } else {
+          header.innerHTML = `
+            <span>${lang}</span>
+            <button class="code-copy-btn" title="코드 클립보드에 복사">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>복사</span>
+            </button>
+          `;
+        }
+
+        const copyBtn = header.querySelector('.code-copy-btn');
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            copyBtn.classList.add('copied');
+            copyBtn.querySelector('span').textContent = '복사 완료! ✓';
+            setTimeout(() => {
+              copyBtn.classList.remove('copied');
+              copyBtn.querySelector('span').textContent = isPrompt ? '복사하기' : '복사';
+            }, 2000);
+          } catch (err) {
+            console.error('Clipboard copy failed:', err);
+          }
+        });
+
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+      });
+    }
+
+    /**
+     * Process Callouts / Blockquotes
+     */
+    function processCallouts(container) {
+      const bqs = container.querySelectorAll('blockquote');
+      bqs.forEach(bq => {
+        const text = bq.innerText.trim();
+        let type = 'note';
+        let icon = 'ℹ️';
+        let title = '참고 안내';
+
+        if (/팁|tip|추천/i.test(text)) {
+          type = 'tip';
+          icon = '💡';
+          title = '실습 팁';
+        } else if (/주의|경고|warning|caution|필수/i.test(text)) {
+          type = 'warning';
+          icon = '⚠️';
+          title = '주의 사항';
+        }
+
+        const callout = document.createElement('div');
+        callout.className = `callout-box callout-${type}`;
+        callout.innerHTML = `
+          <div class="callout-icon">${icon}</div>
+          <div style="flex:1;">
+            <strong style="display:block; margin-bottom:0.25rem; font-size:0.85rem; letter-spacing:0.02em;">${title}</strong>
+            ${bq.innerHTML}
+          </div>
+        `;
+        bq.parentNode.replaceChild(callout, bq);
+      });
+    }
+
+    /**
+     * Process Images: Click to zoom / Lightbox
+     */
+    function processImages(container) {
+      const imgs = container.querySelectorAll('img');
+      imgs.forEach(img => {
+        // Skip if already wrapped or in modal
+        if (img.closest('.image-container') || img.closest('.modal-card')) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'image-container';
+
+        const captionBar = document.createElement('div');
+        captionBar.className = 'image-caption-bar';
+        captionBar.innerHTML = `
+          <span>📷 실습 예시 화면</span>
+          <span class="zoom-hint">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            클릭하여 확대
+          </span>
+        `;
+
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+        wrapper.appendChild(captionBar);
+
+        wrapper.addEventListener('click', () => {
+          openLightbox(img.src);
+        });
+      });
+    }
+
+    /**
+     * Process Tables: Wrap with responsive scroll container
+     */
+    function processTables(container) {
+      const tables = container.querySelectorAll('table');
+      tables.forEach(table => {
+        // Skip if already in comparison table
+        if (table.classList.contains('comparison-table') || table.closest('.table-container')) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-container';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+    }
+
+    /**
+     * Process Links: Open external links in new tab
+     */
+    function processExternalLinks(container) {
+      const links = container.querySelectorAll('a');
+      links.forEach(a => {
+        const href = a.getAttribute('href');
+        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+    }
+
+    /**
+     * Scroll Spy & Reading Progress
+     */
+    function setupScrollEvents() {
+      const progressBar = document.getElementById('reading-progress');
+      const fabTop = document.getElementById('fab-top');
+
+      window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+
+        progressBar.style.width = `${progress}%`;
+
+        // Back to top visibility
+        if (scrollY > 400) {
+          fabTop.classList.add('visible');
+        } else {
+          fabTop.classList.remove('visible');
+        }
+
+        // Active TOC tracking
+        if (headingElements.length > 0 && document.getElementById('reader-view').style.display !== 'none') {
+          let currentActiveId = null;
+          for (let i = 0; i < headingElements.length; i++) {
+            const rect = headingElements[i].element.getBoundingClientRect();
+            if (rect.top <= 140) {
+              currentActiveId = headingElements[i].id;
+            } else {
+              break;
+            }
+          }
+          if (currentActiveId) {
+            setActiveTocLink(currentActiveId);
+          }
+        }
+      }, { passive: true });
+    }
+
+    /**
+     * Modal Controls
+     */
+    function showQrModal() {
+      document.getElementById('qr-modal').classList.add('open');
+    }
+
+    function closeQrModal() {
+      document.getElementById('qr-modal').classList.remove('open');
+    }
+
+    function openLightbox(src) {
+      const lightbox = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      img.src = src;
+      lightbox.classList.add('open');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').classList.remove('open');
+    }
+
+    // Keyboard navigation (ESC closes modals)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeQrModal();
+        closeLightbox();
+      }
+    });
+  </script>
+</body>
+</html>

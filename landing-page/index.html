@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Enterprise Hands-on Workshop Portal</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* Bright Slate-100 background */
+            color: #1e293b; /* Dark Slate-800 text */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        /* Ambient Background Glows - Bright theme colors */
+        .bg-glow-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .bg-glow-1, .bg-glow-2, .bg-glow-3 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.6;
+        }
+
+        .bg-glow-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #c7d2fe 0%, rgba(199, 210, 254, 0) 70%); /* Light Indigo */
+            top: -10%;
+            left: 10%;
+            animation: float1 25s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-2 {
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, #f3e8ff 0%, rgba(243, 232, 255, 0) 70%); /* Light Purple */
+            bottom: -15%;
+            right: 10%;
+            animation: float2 30s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-3 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #cffafe 0%, rgba(207, 250, 254, 0) 70%); /* Light Cyan */
+            top: 30%;
+            left: 40%;
+            animation: float3 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes float1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(120px, 80px) scale(1.15); }
+        }
+        @keyframes float2 {
+            0% { transform: translate(0, 0) scale(1.1); }
+            100% { transform: translate(-140px, -90px) scale(0.9); }
+        }
+        @keyframes float3 {
+            0% { transform: translate(0, 0) scale(0.9); }
+            100% { transform: translate(-70px, 100px) scale(1.2); }
+        }
+
+        /* Slide Portal Card - Frosted Light Glassmorphism */
+        .slide-container {
+            width: 80vw;
+            min-height: 80vh;
+            height: auto;
+            background: rgba(255, 255, 255, 0.45); /* White glassmorphism */
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.6); /* Lighter border */
+            border-radius: 28px;
+            padding: 4.5vh 4.5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.1),
+                        0 0 50px rgba(99, 102, 241, 0.05);
+            z-index: 10;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Inner Border Glow */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 28px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(99, 102, 241, 0.2) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .slide-header {
+            margin-bottom: 1.5vh;
+        }
+
+        .slide-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .gemini-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #db2777 100%);
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.35rem 1rem;
+            border-radius: 99px;
+            color: #ffffff;
+            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.3);
+        }
+
+        .slide-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #0f172a 40%, #1e293b 75%, #334155 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.55rem;
+            color: #475569; /* Slate-600 */
+            font-weight: 500;
+        }
+
+        /* Grid Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.25vw;
+            width: 100%;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        /* Card Button style - Clean white elements */
+        .option-card {
+            background: rgba(255, 255, 255, 0.65); /* Bright frosted glass */
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 4vh 2.25vw;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            height: 100%;
+            min-height: 280px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                        0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Interactive cursor glow - light version */
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            background: radial-gradient(800px circle at var(--x, 0px) var(--y, 0px), rgba(99, 102, 241, 0.08), transparent 45%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .option-card:hover::before {
+            opacity: 1;
+        }
+
+        .option-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08),
+                        0 0 25px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Icon styling - scaled up */
+        .icon-container {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: #ffffff; /* Bright icon background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            color: #4f46e5; /* Indigo icon color */
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .option-card:hover .icon-container {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #ffffff;
+            transform: scale(1.08);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Card Content - scaled up */
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .option-card:hover .card-title {
+            color: #4f46e5;
+        }
+
+        .card-desc {
+            font-size: 1.15rem;
+            color: #475569; /* Slate-600 */
+            line-height: 1.6;
+        }
+
+        .badge-coming {
+            font-size: 0.75rem;
+            font-weight: 800;
+            background: rgba(99, 102, 241, 0.1);
+            color: #4f46e5;
+            padding: 0.2rem 0.65rem;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Footer */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 2.5vh;
+            margin-top: 2rem;
+            font-size: 1.05rem;
+            color: #64748b;
+        }
+
+        .footer-logo {
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.05em;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        
+        .footer-logo-highlight {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* QR Code section styling */
+        .qr-section {
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: center;
+        }
+
+        .qr-instruction {
+            font-size: 0.95rem;
+            color: #64748b; /* Slate-500 */
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .qr-code-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 6px;
+            background: #ffffff;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        }
+
+        .option-card:hover .qr-code-img {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Responsive fallbacks */
+        @media (max-width: 900px) {
+            .slide-container {
+                width: 95vw;
+                height: auto;
+                aspect-ratio: auto;
+                padding: 3.5rem 2.5rem;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+            }
+            .option-card {
+                min-height: 200px;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Shapes -->
+    <div class="bg-glow-container">
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+        <div class="bg-glow-3"></div>
+    </div>
+
+    <!-- Presentation Slide Portal -->
+    <main class="slide-container">
+        
+        <!-- Header -->
+        <div class="slide-header">
+            <div class="slide-title-wrapper">
+                <span class="gemini-badge">Workshop</span>
+                <h1 class="slide-title">Gemini Enterprise</h1>
+            </div>
+            <p class="slide-subtitle">Hands-on 실습 가이드 및 실행 환경 포털</p>
+        </div>
+
+        <!-- Options Cards Grid -->
+        <div class="options-grid">
+            
+            <!-- Card 1: Guide Link -->
+            <a href="https://github.com/mee-nam-lee/gemini-enterprise-lab/blob/main/ge-lab-short/lab.md" target="_blank" class="option-card" id="card-guide">
+                <div>
+                    <div class="icon-container">
+                        <!-- Book Open Icon -->
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">실습 Guide</h2>
+                    <p class="card-desc">Markdown 버전 실습 설명서 및 팁이 상세히 포함된 전체 문서를 확인합니다.</p>
+                </div>
+            </a>
+
+            <!-- Card 2: Environment Link -->
+            <a href="https://vertexaisearch.cloud.google.com/home/cid/aceefa34-6c99-4be2-a7c9-2eebea20a913" target="_blank" class="option-card" id="card-workspace">
+                <div>
+                    <div class="icon-container">
+                        <!-- External Link / Launch Icon -->
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Gemini Enterprise 접속</h2>
+                    <p class="card-desc"> Gemini Enterprise 실습을 위한 App에 접속합니다.</p>
+                </div>
+            </a>
+
+            <!-- Card 3: ID/Password Link (Active but shows an alert) -->
+            <a href="https://script.google.com/macros/s/AKfycbyRYfiOinKjvFAngTgpcV3Y9ld1qtFVC6n1QFV0inLxdoMlBFKxvuh7kSO86qqTrDts/exec" target="_blank" class="option-card"
+                id="card-accounts">
+                <div>
+                    <div class="icon-container">
+                        <!-- Key / Safe Icon -->
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">접속 ID/PW 확인</h2>
+                    <p class="card-desc">데모 및 실습을 수행하기 위한 개인별 임시 구글 계정 정보(ID/Password) 링크입니다.</p>
+                </div>
+                <div class="qr-section">
+                    <p class="qr-instruction">PC에서 링크가 접속되지 않으면 다음 QR 코드를 통해 모바일에서 확인하세요.</p>
+                    <img src="qrcode.png" alt="QR Code" class="qr-code-img">
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="slide-footer">
+            <div class="footer-logo">
+                Google <span class="footer-logo-highlight">Cloud</span>
+            </div>
+            <div>© 2026. All rights reserved.</div>
+        </div>
+
+    </main>
+
+    <!-- Hover Spotlight Interactive Script -->
+    <script>
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>

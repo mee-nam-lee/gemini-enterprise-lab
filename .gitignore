@@ -6,6 +6,8 @@
 **/tf*
 **/tf.zip
 **/*.html
+!/index.html
+!/landing-page/index.html
 agent-engine-lab/instructions/en.md
 appscript
 .gitignore
